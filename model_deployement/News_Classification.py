@@ -21,7 +21,8 @@ from sklearn.metrics import confusion_matrix, f1_score, classification_report
 # import io
 # import os
 # import shutil
-# import zipfile
+import zipfile
+# import cPickle
 # import urllib
 # import tensorflow as tf
 
@@ -32,6 +33,15 @@ from sklearn.metrics import confusion_matrix, f1_score, classification_report
 # from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 filename = 'randomforestclassifier_model.pkl'
+
+zip_name = 'rf_clf.zip'
+
+@st.cache(allow_output_mutation=True)
+def load_model():
+  with zipfile.ZipFile(zip_name, 'r') as zp:
+    rf_model = pickle.loads(zp.open(filename).read())
+
+  return rf_model
 
 def transform_word(texts):
     texts_new = []
@@ -51,12 +61,12 @@ def load_image(filepath, width=300):
   img = Image.open(filepath)
   return st.image(img, width=width)
 
-@st.cache(allow_output_mutation=True)
-def load_model():
-  with open(filename, 'rb') as pkfile:
-    rf_model = pickle.load(pkfile)
+# @st.cache(allow_output_mutation=True)
+# def load_model():
+#   with open(filename, 'rb') as pkfile:
+#     rf_model = pickle.load(pkfile)
 
-  return rf_model
+#   return rf_model
 
 
 if __name__ == '__main__':
@@ -75,12 +85,12 @@ if predict_btn:
 
   if prediction == 0:
     st.warning('This is a fake news')
-    load_image('images/Fake_News.png')
+    load_image('Fake_News.png')
     st.info(f'The Model predicts that there is a {100 - pred_prob[0]*100}% \
           probability that the news is fake.')
 
   if prediction == 1:
     st.success('This is not a fake news, It is True.')
-    load_image('images/True_News.jpg')
+    load_image('True_News.jpg')
     st.info(f'The Model predicts that there is a {pred_prob[0]*100}% \
           probability that the news is true.')
